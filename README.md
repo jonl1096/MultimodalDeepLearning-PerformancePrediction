@@ -1,6 +1,6 @@
 # d2m-final-project
 
-Members:
+### Members:
 * Alex Ahn
 * Dylan Lewis
 * Jonathan Liu
