@@ -1,0 +1,60 @@
+library(RSQLite)
+library(msm)
+library(xtable)
+library(data.table)
+library(dplyr)
+library(tidyr)
+library(dtplyr)
+
+db <- src_sqlite('~/Documents/Github/DB/pitchRx_14_16.sqlite3')
+target_team = "Orioles"
+target_team_quote = "'Orioles'"
+#dbListTables(db$con) -> "action" "atbat"  "coach"  "game"   "hip"    "media"  "pitch"  "player" "po" "runner"
+dbListFields(db$con, 'game')
+#games <- dbGetQuery(db$con, 'SELECT * FROM game')
+qry <- paste('SELECT original_date, home_team_name, away_team_name,
+             away_win, away_loss, away_team_hits, away_team_errors, away_team_hr, away_team_sb, away_team_so,
+             home_win, home_loss, home_team_hits, home_team_errors, home_team_hr, home_team_sb, home_team_so,
+             away_team_runs, home_team_runs, gameday_link
+             FROM game WHERE home_team_name==', target_team_quote, 'OR away_team_name==', target_team_quote, sep="")
+
+data <- dbGetQuery(db$con, qry)
+
+# acquire isHome
+data$isHome <- -1
+data$isHome[data$home_team_name == target_team] <- 1
+data$score_diff <- 0
+data$score_diff <- (data$home_team_runs - data$away_team_runs) * data$isHome
+# drop canceled/tied games
+data <- data[!is.na(data$score_diff) & data$score_diff != 0,]
+
+# get wins
+data$wins <- 0
+data$wins[data$score_diff > 0] <- 1
+
+# rows, cols
+n_rows <- dim(data)[1]
+n_cols <- dim(data)[2]
+
+# get wins_next
+stored_wins <- data$wins
+stored_wins <- c(stored_wins,NA)
+data <- rbind(data[1,], data)
+data$wins_next <- stored_wins
+data <- data[3:n_rows,]
+
+# re order data
+dates <- data[c(1)]
+data <- data[c(24, 23, 22, 21, 4:19)]
+
+# split datasets
+randomized_data <- data[sample(nrow(data)),]
+data_len <- nrow(randomized_data)
+split_size <- ceiling((3/4)*data_len)
+train_data <- randomized_data[1:split_size, ]
+test_data <- randomized_data[(split_size+1):data_len, ]
+
+# write data
+write.csv(dates, file=paste(target_team,"_dates.csv", sep=""), row.names = FALSE)
+write.csv(train_data, file=paste(target_team,"_train.csv", sep=""), row.names = FALSE)
+write.csv(test_data, file=paste(target_team,"_test.csv", sep=""), row.names = FALSE)
