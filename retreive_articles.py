@@ -1,5 +1,3 @@
-import urllib
-import mechanize
 from bs4 import BeautifulSoup
 import re
 from datetime import date as Date, timedelta
@@ -10,16 +8,13 @@ except ImportError:
 	# Python 3
 	from html.parser import HTMLParser
 import csv
+import requests
 
 #NOTE: google results doesn't actually do this by the right date.
 #  It seems that the browser opening a url from python gives 
 #  a different result html with an unspecified date.
 #  Tricky, might come back later
 def get_google_results(search_term, date, num_results):
-	br = mechanize.Browser()
-	br.set_handle_robots(False)
-	br.addheaders = [('User-agent','chrome')]
-
 	term = search_term
 	mindate = date
 	maxdate = date
@@ -33,10 +28,11 @@ def get_google_results(search_term, date, num_results):
 	print(google_search_news)
 	print("")
 
-	results_html = br.open(google_search_news).read()
+	page = requests.get(google_search_news)
+	results = BeautifulSoup(page.content, 'html.parser')
 	#print(results_html)
 	#print("")
-	results = BeautifulSoup(results_html, "lxml")
+
 	results = results.findAll('div', attrs={'id':'search'})[0]
 
 	#links
@@ -66,10 +62,6 @@ def get_google_results(search_term, date, num_results):
 	return urls
 
 def get_bing_results(search_term, date, num_results):
-	br = mechanize.Browser()
-	br.set_handle_robots(False)
-	br.addheaders = [('User-agent','chrome')]
-
 	#get search term
 	term = search_term
 	urlterm = term.replace(" ","+")
@@ -93,15 +85,16 @@ def get_bing_results(search_term, date, num_results):
 	print(bing_search_news)
 	print("")
 
-	results_html = br.open(bing_search_news).read()
-	results = BeautifulSoup(results_html, "lxml")
+	page = requests.get(bing_search_news)
+	results = BeautifulSoup(page.content, 'html.parser')
+
 	results = results.findAll('li', attrs={'class':'b_algo'})
 	results = BeautifulSoup(str(results), "lxml").findAll('h2')
 
 	url_pattern = re.compile("href=\".+?\"")
 	des_pattern = re.compile("\"\>.+?\</a\>")
 	webpages = []
-	for result in results:
+	for i,result in enumerate(results):
 		result = str(result)
 
 		#get url
@@ -112,7 +105,7 @@ def get_bing_results(search_term, date, num_results):
 		description = re.findall(des_pattern,result)
 		description = description[0][2:-4].replace("<strong>","").replace("</strong>","")
 
-		webpages.append((description,url))
+		webpages.append((description,url,i))
 	return webpages
 
 
@@ -137,16 +130,16 @@ def get_season_articles(search_term, num_per_day, start_date, end_date):
 	return data
 
 def write_season_csv(year, data):
-	with open('season'+year+'.csv', 'w') as csvfile:
+	with open('Data/season'+year+'.csv', 'w') as csvfile:
 		urlwriter = csv.writer(csvfile)
 		#urlwriter.writerow(["date", "articles"])
 		for item in data:
 			urlwriter.writerow(item)
 
-#write_season_csv("2016", get_season_articles("orioles", 10, Date(2016, 4, 3), Date(2016, 10, 2)))
-#write_season_csv("2015", get_season_articles("orioles", 10, Date(2015, 4, 5), Date(2015, 10, 4)))
-#write_season_csv("2014", get_season_articles("orioles", 10, Date(2014, 3, 30), Date(2014, 9, 28)))
-#write_season_csv("2013", get_season_articles("orioles", 10, Date(2013, 3, 31), Date(2013, 9, 30)))
-#write_season_csv("2012", get_season_articles("orioles", 10, Date(2012, 3, 28), Date(2012, 10, 3)))
-#write_season_csv("2011", get_season_articles("orioles", 10, Date(2011, 3, 31), Date(2011, 9, 28)))
+write_season_csv("2016websites", get_season_articles("baltimore orioles baseball", 10, Date(2016, 4, 3), Date(2016, 10, 2)))
+write_season_csv("2015websites", get_season_articles("baltimore orioles baseball", 10, Date(2015, 4, 5), Date(2015, 10, 4)))
+write_season_csv("2014websites", get_season_articles("baltimore orioles baseball", 10, Date(2014, 3, 30), Date(2014, 9, 28)))
+write_season_csv("2013websites", get_season_articles("baltimore orioles baseball", 10, Date(2013, 3, 31), Date(2013, 9, 30)))
+write_season_csv("2012websites", get_season_articles("baltimore orioles baseball", 10, Date(2012, 3, 28), Date(2012, 10, 3)))
+write_season_csv("2011websites", get_season_articles("baltimore orioles baseball", 10, Date(2011, 3, 31), Date(2011, 9, 28)))
 
