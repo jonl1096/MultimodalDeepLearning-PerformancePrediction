@@ -10,3 +10,6 @@
 | Jered McInerney | dmciner1 | [dmcinerny](https://github.com/dmcinerney)  |
 
 [Google Drive Folder](https://drive.google.com/open?id=0B4ieDXWtATqka0h1VUxPaVFuME0)
+
+## Important Files:
+* [Deep Autoencoder ipybn](https://github.com/jonl1096/d2m-final-project/blob/master/autoencoder/testing/Deep%20Autoencoder.ipynb)
