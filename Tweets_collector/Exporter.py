@@ -54,9 +54,9 @@ def main(argv):
 			elif opt == '--maxtweets':
 				tweetCriteria.maxTweets = int(arg)
 		
-		outputFile = codecs.open(("orioles_tweets_%s.csv" %date[2:4]), "w+", "utf-8")
+		outputFile = codecs.open(("orioles_tweets_%s.csv" %date[2:4]), "a", "utf-8")
 		
-		outputFile.write('date<;>text')
+		#outputFile.write('date<;>text')
 		
 		print 'Searching...\n'
 		
