@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import codecs
 import re
+import pdb
 from sklearn import decomposition
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.decomposition import NMF, LatentDirichletAllocation
@@ -13,26 +14,27 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 def main():
-    year = '16'
-    parse_tweets(year)
-    with open("orioles_tweets_processed_%s.csv" %year) as f:
-        df = pd.read_csv(f, encoding='latin-1', sep='<;>', index_col=False)
-    
+    parse_tweets()
+    with open("data/orioles_tweets_processed.csv") as f:
+        df = pd.read_csv(f, encoding='latin-1', sep='<;>', index_col=False, engine='python')
+
     # get data
-    col_names = list(df.columns.values)
+    dates = df['date']
     X = df['text']
 
-    print(X)
-    
     # params
     n_features = 1000
-    n_topics = 10
+    n_topics = 50
     n_top_words = 20
     n_samples = len(X)
 
     # vectorize
     X_trans, topics, topic_components= fit_lda(X, n_features, n_topics, n_top_words, n_samples)
 
+    # write transformed data
+    outfile_name = "data/orioles_tweets_LDA.csv"    
+    np.savetxt(outfile_name, X_trans, delimiter="<;>")
+    
     # names
     '''
     topic_names = ["Family/Urgent", "Offence", "School Crime", 
@@ -40,7 +42,7 @@ def main():
                     "Marriage", "Crime witness", "Attack/Terrorism", "Hilary Clinton"]
     '''
 
-    topic_names = [("Topic: %d"%i) for i in range(10)]
+    topic_names = [("Topic: %d"%i) for i in range(n_topics)]
 
     # assign topics
     topic_labels = []
@@ -55,11 +57,15 @@ def main():
     #gmm_clustering(X_trans)
     #plot_complex(X_trans, df, topic_names)
 
-def parse_tweets(year):
-    with open("orioles_tweets_%s.csv" %year) as f:
+def parse_tweets():
+    with open("data/orioles_tweets_14.csv") as f:
         df = pd.read_csv(f, encoding='latin-1', sep='<;>', index_col=False, engine='python')
+    with open("data/orioles_tweets_15.csv") as f:
+        df = df.append(pd.read_csv(f, encoding='latin-1', sep='<;>', index_col=False, engine='python'), ignore_index=True)
+    with open("data/orioles_tweets_16.csv") as f:
+        df = df.append(pd.read_csv(f, encoding='latin-1', sep='<;>', index_col=False, engine='python'), ignore_index=True)
 
-    outputFile = codecs.open(("orioles_tweets_processed_%s.csv" %year), "w+", "utf-8")
+    outputFile = codecs.open("data/orioles_tweets_processed.csv", "w+", "utf-8")
     outputFile.write('date<;>text')
     dates = np.unique(df['date'])
     for date in dates:
@@ -70,10 +76,13 @@ def parse_tweets(year):
     outputFile.close()
 
 def get_words(doc):
-    link_tag = 'http://'
-    if link_tag in doc:
-        doc = doc[:doc.index(link_tag)]
-    return ' '.join(re.findall(r"(\w+)", doc)).lower()
+    try:
+        link_tag = 'http://'
+        if link_tag in doc:
+            doc = doc[:doc.index(link_tag)]
+        return ' '.join(re.findall(r"(\w+)", doc)).lower()
+    except:
+        return ""
 
 def kmeans_clustering(X):
     klist = []
