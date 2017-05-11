@@ -6,7 +6,7 @@ from datetime import date as Date, timedelta, datetime
 import enchant
 d = enchant.Dict("en_US")
 
-yearrange = (2014,2016)
+yearrange = (2014,2017)
 
 def getDomain(url):
 	domain_pattern = re.compile("/[^/]+?\.[^/]+?/")
@@ -48,13 +48,13 @@ def parse_article_words(article):
 	text = [word for i,word in enumerate(text) if len(word) > 2 and (word[0].isupper() or d.check(word))]
 	text = [word.strip().lower() for word in text]
 	text = [word for word in text if word not in dumbwords]
-	text = " ".join(text)
+	text = " ".join(text[:20])
 	#print(text)
 	return text
 
 num_days_to_concat = 3
 statsbydate = {}
-with open('Data/scrapers/Orioles_train.csv', 'r') as stats, open('Data/scrapers/Orioles_dates.csv', 'r') as dates:
+with open('Data/scrapers/Orioles_train.csv', 'r') as stats, open('Data/scrapers/dates.csv', 'r') as dates:
 	statsreader = csv.reader(stats)
 	datesreader = csv.reader(dates)
 	next(statsreader)
@@ -89,12 +89,12 @@ for year in range(*yearrange):
 							articlestr += parse_article_words(str(article[1])) + " "
 						if datestr not in datadict.keys():
 							stats = statsbydate[datestr]
-							datadict[datestr] = stats+[articlestr]
-						datadict[datestr][len(datadict[datestr])-1] += articlestr
+							datadict[datestr] = [stats,articlestr]
+						datadict[datestr][1] += articlestr
 					tempdate += timedelta(1)
 
 
-with open('Data/data'+str(yearrange[0])[-2:]+'_'+str(yearrange[1])[-2:]+'.csv', 'w') as data:
+with open('Data/data'+str(yearrange[0])[-2:]+'_'+str(yearrange[1]-1)[-2:]+'.csv', 'w') as data:
 	datawriter = csv.writer(data)
 	for key, value in sorted(list(datadict.items()), key=lambda x: x[0]):
 		datawriter.writerow([key]+value)
