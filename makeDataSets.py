@@ -7,7 +7,7 @@ import enchant
 d = enchant.Dict("en_US")
 
 yearrange = (2014,2017)
-
+numword_per_article = 10
 def getDomain(url):
 	domain_pattern = re.compile("/[^/]+?\.[^/]+?/")
 	return re.findall(domain_pattern, url)[0][1:-1]
@@ -48,7 +48,8 @@ def parse_article_words(article):
 	text = [word for i,word in enumerate(text) if len(word) > 2 and (word[0].isupper() or d.check(word))]
 	text = [word.strip().lower() for word in text]
 	text = [word for word in text if word not in dumbwords]
-	text = " ".join(text[:20])
+	text = " ".join(text[:numword_per_article])
+	#text = " ".join(text)
 	#print(text)
 	return text
 
@@ -94,7 +95,8 @@ for year in range(*yearrange):
 					tempdate += timedelta(1)
 
 
-with open('Data/data'+str(yearrange[0])[-2:]+'_'+str(yearrange[1]-1)[-2:]+'.csv', 'w') as data:
+with open('Data/data'+str(yearrange[0])[-2:]+'_'+str(yearrange[1]-1)[-2:]+'_'+str(numword_per_article)+'.csv', 'w') as data:
+#with open('Data/data'+str(yearrange[0])[-2:]+'_'+str(yearrange[1]-1)[-2:]+'.csv', 'w') as data:
 	datawriter = csv.writer(data)
 	for key, value in sorted(list(datadict.items()), key=lambda x: x[0]):
 		datawriter.writerow([key]+value)

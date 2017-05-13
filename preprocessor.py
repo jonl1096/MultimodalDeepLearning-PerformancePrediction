@@ -5,7 +5,7 @@ csv.field_size_limit(sys.maxsize)
 import numpy as np
 
 
-data_file = "Data/data14_16.csv"
+data_file = "Data/data14_16_40.csv"
 article_preprocess = "word_embeddings"
 twitter_preprocess = "word_embeddings"
 
@@ -20,7 +20,7 @@ def get_data(datafilename):
 
 
 def get_embeddings():
-	glovefile = "glove/glove.6B.50d.txt"
+	glovefile = "glove/glove.6B.300d.txt"
 	embeddings = {}
 	with open(glovefile, 'r') as embeddings_file:
 		for line in embeddings_file:
@@ -53,7 +53,7 @@ embeddings = get_embeddings()
 #0 - stats, 1 - articles, 2 - tweets
 
 #for date, stats, and articles
-with open('Data/data_preprocessed.csv', 'w') as data_preprocessed:
+with open('Data/data_preprocessed_40w_300d.csv', 'w') as data_preprocessed:
 	datawriter = csv.writer(data_preprocessed)
 	for example in data:
 		print(example[0])
