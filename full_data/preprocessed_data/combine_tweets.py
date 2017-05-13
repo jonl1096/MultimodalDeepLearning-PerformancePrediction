@@ -31,20 +31,23 @@ count = 0
 lda_vector = 0
 avg_vectors = []
 
+write_df = pd.DataFrame(columns=['date', 'tweet_lda'])
+
 for index, row in df.iterrows():
 	print("DF:" + row['date'])
 	lda_vector += row[1:]
 	count+=1
-	if row['date'] == curr_date:
-		avg_vectors.append(lda_vector / count)
-		print("CURRENT DATE: " + curr_date)
-		print(count)
+
+	if row['date'][3] != curr_date[3] or row['date'] == curr_date:
+		avg_vectors.append((curr_date, [i for i in lda_vector / count]))
 		count = 0
 		lda_vector = 0
 		curr_date = original_date_list.pop(0)
-		print("NEW CURRENT DATE: " + curr_date)
 
-exit(1)
+#avg_vectors.append((curr_date, lda_vector / count))
 
+df = pd.DataFrame(avg_vectors)
+df.to_csv("lda_output.csv")
+print(df.shape)
 
 
