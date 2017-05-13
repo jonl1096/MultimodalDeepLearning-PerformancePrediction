@@ -93,12 +93,12 @@ def get_article_text(article):
 
 	return description, text, domain
 
-yearrange = (2016,2017)
+yearrange = (2014,2017)
 i = 0
 for year in range(*yearrange):
 	dates = []
 	articles = [] #per season per date
-	with open('Data/season'+str(year)+'websites.csv','r') as file:
+	with open('Data/season'+str(year)+'websitesextended.csv','r') as file:
 		reader = csv.reader(file)
 		for row in reader:
 			dates.append(row[0])
@@ -109,7 +109,7 @@ for year in range(*yearrange):
 					dateidx = len(articles) - 1
 					articles[dateidx].append((description, text, domain))
 	
-	with open('Data/season'+str(year)+'articles.csv','w') as file:
+	with open('Data/news_articles/season'+str(year)+'articles_extended.csv','w') as file:
 		writer = csv.writer(file)
 		for i,date in enumerate(dates):
 			writer.writerow([date,articles[i]])
