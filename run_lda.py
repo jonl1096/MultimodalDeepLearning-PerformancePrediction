@@ -23,11 +23,9 @@ def main():
     #X = df['text']
 
     with open("full_data/preprocessed_data/raw_articles.csv") as f:
-        df = pd.read_csv(f, encoding='latin-1', sep=',', engine='python', index_col=False, header=None)
-    X = df[0]
-    print(X)
-    exit(1)
-
+        df = pd.read_csv(f, encoding='latin-1', engine='python', index_col=None, header=None)        
+    X = df[1]
+    X = X.fillna("NONE")
     # params
     n_features = 1000
     n_topics = 50
@@ -37,7 +35,8 @@ def main():
     # vectorize
     X_trans, topics, topic_components= fit_lda(X, n_features, n_topics, n_top_words, n_samples)
     
-    X_LDA = pd.concat([dates, pd.DataFrame(X_trans)], axis=1)
+    #X_LDA = pd.concat([dates, pd.DataFrame(X_trans)], axis=1)
+    X_LDA = pd.DataFrame(X_trans)
     # write transformed data
     outfile_name = "full_data/articles_lda.csv"
     X_LDA.to_csv(outfile_name, sep=",", index=False)

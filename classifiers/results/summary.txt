@@ -4,10 +4,10 @@ Prediction Accuracy Summary:
   Pitcher: Orioles                                       
 
   Pitch Types:[0 1]                                   
-  label_size:2   train_size:276                   
+  label_size:2   train_size:371                   
 ----------------------------------------------------
   SVM         NeuN       RanF                       
   =====       =====      =====                      
-  0.554       0.591      0.504                
+  0.536       0.508      0.481                
 ====================================================
 

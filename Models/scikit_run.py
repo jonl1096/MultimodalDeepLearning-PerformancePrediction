@@ -19,6 +19,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.feature_extraction import DictVectorizer as DV
 from sklearn import preprocessing
 
+
 np.random.seed(7)
 def main():
     team_name = "Orioles"
@@ -44,7 +45,8 @@ def main():
 def readCSV():
     stats_data = '../full_data/final_data/statistics.csv'
     tweet_data = '../full_data/final_data/tweets_DF.csv'
-    artic_data = '../full_data/final_data/articles.csv'
+    artic_data = '../full_data/final_data/articles_tf.csv'
+    bimod_data = '../full_data/final_data/bimodal_TnA.csv'
 
     #stats data
     X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
@@ -56,16 +58,20 @@ def readCSV():
     X_tweet = pd.DataFrame.from_csv(tweet_data, index_col=None)
 
     #article data
-    X_artic = pd.DataFrame.from_csv(tweet_data, index_col=None)
+    X_artic = pd.DataFrame.from_csv(artic_data, index_col=None, header=None)
 
-    a, b, c = 0.001, 10, 5
-    X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
+    #bimodal data
+    X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
+    #a, b, c = 0.001, 10, 5
+    #X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
+    X = X_bimod
+    #X = pd.concat([X_stats, X_tweet, X_artic], axis=1)
 
-    X = pd.concat([X_stats, X_tweet, X_artic], axis=1)
-
-    # single stats
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
+    n = 371
+    X_train, X_test, y_train, y_test = X[:n], X[n:], Y[:n], Y[n:]    # single stats
+    #X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
     return [X_train, y_train], [X_test, y_test]
+
 
 def populateData(X_train, y_train):
     labels = np.unique(y_train)

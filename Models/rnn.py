@@ -27,7 +27,7 @@ from sklearn import preprocessing
 
 
 # fix random seed for reproducibility
-np.random.seed(7)
+#np.random.seed(7)
 
 def main():
     team_name = "Orioles"
@@ -65,7 +65,8 @@ def run_rnn(X_train, X_test, y_train, y_test):
 def readCSV():
     stats_data = '../full_data/final_data/statistics.csv'
     tweet_data = '../full_data/final_data/tweets_DF.csv'
-    artic_data = '../full_data/final_data/articles.csv'
+    artic_data = '../full_data/final_data/articles_tf.csv'
+    bimod_data = '../full_data/final_data/bimodal_TnA.csv'
 
     #stats data
     X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
@@ -77,15 +78,21 @@ def readCSV():
     X_tweet = pd.DataFrame.from_csv(tweet_data, index_col=None)
 
     #article data
-    X_artic = pd.DataFrame.from_csv(tweet_data, index_col=None)
+    X_artic = pd.DataFrame.from_csv(artic_data, index_col=None, header=None)
 
-    a, b, c = 0.001, 10, 5
-    X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
-
-    X = pd.concat([X_stats, X_tweet, X_artic], axis=1)
+    #bimodal data
+    X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
+    #a, b, c = 0.001, 10, 5
+    #X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
+    X = X_bimod
+    #X = pd.concat([X_stats, X_tweet, X_artic], axis=1)
 
     # single stats
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
+    x_len = X.shape[0]
+    cut = 0.5
+    n = int(x_len * cut)
+    X_train, X_test, y_train, y_test = X[:n], X[n:], Y[:n], Y[:n]
+    #X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
     return X_train, X_test, y_train, y_test
 
 
