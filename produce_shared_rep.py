@@ -3,27 +3,41 @@ import sys
 csv.field_size_limit(sys.maxsize)
 import numpy as np
 
-dates = []
-stats_vectors = []
-article_vectors = []
-twitter_vectors = []
-datafile = "Data/data_preprocessed.csv"
-outputfile = "Data/shared_rep.csv"
+modenames = ["articles","tweets"]
+encoder1layers = [([10],[]),([10],[])]
+encoder2layers = [([10],[]),([10],[])]
+encode_sharedrep_layers = ([10],[])
+modeidxs = [3,4]
+labelsidx = 2
+dateidxs = (0,1)
+datafile = "Data/data_preprocessed_10w_300d copy.csv"
+outputfiletrain = "Data/shared_rep_train.csv"
+outputfiletest = "Data/shared_rep_test.csv"
+
+
+dates_train = []
+dates_test = []
+vectors_by_mode = [[[],[]] for i in range(len(modeidxs))]
+train_or_test = 0
 with open(datafile, 'r') as data:
 	datareader = csv.reader(data)
-	for row in datareader:
-		dates.append(str(row[0]))
-		stats_vectors.append(eval(row[1]))
-		article_vectors.append(eval(row[2]))
-		# article_vectors[i] = eval(row[3])
-print(stats_vectors[0])
-print(article_vectors[0])
-# print(twitter_vectors[0])
+	for i,row in enumerate(datareader):
+		year = int(str(row[dateidxs[0]])[:4])
+		if True:#year < 2016:
+			train_or_test = 0
+			dates_train.append([str(row[dateidxs[0]]),str(row[dateidxs[1]])])
+		else:
+			train_or_test = 1
+			dates_test.append([str(row[dateidxs[0]]),str(row[dateidxs[1]])])
+		for i, modeidx in enumerate(modeidxs):
+			print(len(vectors_by_mode), len(row))
+			vectors_by_mode[i][train_or_test].append(eval(row[modeidx]))
+
 
 #put data in numpy matricies
-stats_vectors = np.matrix(stats_vectors)
-article_vectors = np.matrix(article_vectors)
-# twitter_vectors = np.matrix(twitter_vectors)
+for i,vectors in enumerate(vectors_by_mode):
+	vectors_by_mode[i][0] = np.matrix(vectors[0])
+	vectors_by_mode[i][1] = np.matrix(vectors[1])
 
 print("importing keras modules")
 from keras.layers import Input, Dense
@@ -60,40 +74,62 @@ def get_encoder(input_vectors, output_vectors, encoding_dim_list, decoding_dim_l
 
 print("getting individual mode encoders")
 #get individual mode encoders
-stats_encoder1 = get_encoder(stats_vectors,stats_vectors, [10], [])
-article_encoder1 = get_encoder(article_vectors,article_vectors, [10], [])
+encoder1 = [0 for i in range(len(vectors_by_mode))]
+for i,vectors in enumerate(vectors_by_mode):
+	encoder1[i] = get_encoder(vectors[0], vectors[0], encoder1layers[i][0], encoder1layers[i][1])
+	if len(vectors[0]) > 1:
+		vectors_by_mode[i][0] = encoder1[i].predict(vectors[0])
+	if len(vectors[1]) > 1:
+		vectors_by_mode[i][1] = encoder1[i].predict(vectors[1])
 
-print("getting encodings")
-#get encodings
-encoded_stats = stats_encoder1.predict(stats_vectors)
-encoded_articles = article_encoder1.predict(article_vectors)
-combined_vector = np.append(encoded_stats, encoded_articles, axis=1)
+combined_vectors_train = np.copy(vectors_by_mode[0][0])
+combined_vectors_test = np.copy(vectors_by_mode[0][1])
+for i,vectors in enumerate(vectors_by_mode):
+	if i == 0: continue
+	combined_vectors_train = np.append(combined_vectors_train, vectors_by_mode[i][0], axis=1)
+	combined_vectors_test = np.append(combined_vectors_test, vectors_by_mode[i][1], axis=1)
+
 
 print("getting individual mode encoders for multi-mode reconstruction")
 #optionally add additional encoder layer that can be used to recreate both modes from one mode
-stats_encoder2 = get_encoder(encoded_stats,combined_vector,[10],[])
-article_encoder2 = get_encoder(encoded_articles,combined_vector,[10],[])
+encoder2 = [0 for i in range(len(vectors_by_mode))]
+for i,vectors in enumerate(vectors_by_mode):
+	encoder2[i] = get_encoder(vectors[0], combined_vectors_train, encoder2layers[i][0], encoder2layers[i][1])
+	if len(vectors[0]) > 1:
+		vectors_by_mode[i][0] = encoder2[i].predict(vectors[0])
+	if len(vectors[1]) > 1:
+		vectors_by_mode[i][1] = encoder2[i].predict(vectors[1])
 
-print("getting encodings")
-#get encodings
-encoded_stats = stats_encoder2.predict(encoded_stats)
-encoded_articles = article_encoder2.predict(encoded_articles)
-combined_vector = np.append(encoded_stats, encoded_articles, axis=1)
+combined_vectors_train = np.copy(vectors_by_mode[0][0])
+combined_vectors_test = np.copy(vectors_by_mode[0][1])
+for i,vectors in enumerate(vectors_by_mode):
+	if i == 0: continue
+	combined_vectors_train = np.append(combined_vectors_train, vectors_by_mode[i][0], axis=1)
+	combined_vectors_test = np.append(combined_vectors_test, vectors_by_mode[i][1], axis=1)
 
 print("getting shared rep encoders")
 #get shared rep encoder
-shared_rep_encoder = get_encoder(combined_vector,combined_vector,[10],[])
+shared_rep_encoder = get_encoder(combined_vectors_train,combined_vectors_train,encode_sharedrep_layers[0],encode_sharedrep_layers[1])
 
 print("getting encodings")
 #get encodings
-encoded_shared_rep = shared_rep_encoder.predict(combined_vector)
+if len(combined_vectors_train) > 1:
+	encoded_shared_rep_train = shared_rep_encoder.predict(combined_vectors_train)
+if len(combined_vectors_test) > 1:
+	encoded_shared_rep_test = shared_rep_encoder.predict(combined_vectors_test)
 
 print("done")
 print("putting shared rep in file")
-with open(outputfile, "w") as outputfile:
-	sharedrepwriter = csv.writer(outputfile)
-	sharedreplist = encoded_shared_rep.tolist()
-	for i,shared_rep in enumerate(sharedreplist):
-		sharedrepwriter.writerow([dates[i], shared_rep])
+with open(outputfiletest, "w") as test_file, open(outputfiletrain, "w") as train_file:
+	train_file_writer = csv.writer(train_file)
+	test_file_writer = csv.writer(test_file)
+	if len(combined_vectors_train) > 1:
+		train_encodings = encoded_shared_rep_train.tolist()
+		for i,shared_rep in enumerate(train_encodings):
+			train_file_writer.writerow([dates_train[i], shared_rep])
+	if len(combined_vectors_test) > 1:
+		test_encodings = encoded_shared_rep_test.tolist()
+		for i,shared_rep in enumerate(test_encodings):
+			test_file_writer.writerow([dates_test[i], shared_rep])
 #put this into rnn
 

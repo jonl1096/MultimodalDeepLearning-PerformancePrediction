@@ -56,7 +56,7 @@ def parse_article_words(article):
 
 #num_days_to_concat = 3
 statsbydate = {}
-with open('Data/scrapers/Orioles_train.csv', 'r') as stats, open('Data/scrapers/dates.csv', 'r') as dates:
+with open('full_data/final_data/statistics.csv', 'r') as stats, open('full_data/final_data/dates.csv', 'r') as dates:
 	statsreader = csv.reader(stats)
 	datesreader = csv.reader(dates)
 	next(statsreader)
@@ -64,15 +64,16 @@ with open('Data/scrapers/Orioles_train.csv', 'r') as stats, open('Data/scrapers/
 	statslist = []
 	dateslist = []
 	for row in statsreader:
-		statslist.append(row)
+		statslist.append(row[2:])
 	for row in datesreader:
-		dateslist.append(str(row[0]))
-
-with open('Data/scrapers/Orioles_test.csv', 'r') as stats:
-	statsreader = csv.reader(stats)
-	next(statsreader)
-	for row in statsreader:
-		statslist.append(row)
+		dateslist.append(datetime.strptime(str(row[1]), '%m/%d/%y').date().strftime('%Y/%m/%d'))
+dateslist.append(datetime.strptime("10/1/16", '%m/%d/%y').date().strftime('%Y/%m/%d'))
+statslist.append(0)
+dateslist.append(datetime.strptime("10/15/14", '%m/%d/%y').date().strftime('%Y/%m/%d'))
+statslist.append(0)
+dateslist.append(datetime.strptime("10/4/15", '%m/%d/%y').date().strftime('%Y/%m/%d'))
+statslist.append(0)
+print(len(dateslist))
 #statsbydate = dict(zip(dateslist,statslist))
 print(len(dateslist), len(statslist))
 statslist = list(zip(dateslist,statslist))
@@ -114,7 +115,7 @@ for year in range(*yearrange):
 
 articlesbydate = {}
 for year in range(*yearrange):
-	with open('Data/news_articles/season'+str(year)+'articles.csv', 'r') as articles:
+	with open('Data/news_articles/season'+str(year)+'articles_extended.csv', 'r') as articles:
 		articlereader = csv.reader(articles)
 		for i,row in enumerate(articlereader):
 			date = datetime.strptime(str(row[0]), '%m/%d/%Y').date()
@@ -128,7 +129,7 @@ for year in range(*yearrange):
 with open('Data/data_compiled'+str(yearrange[0])[-2:]+'_to_'+str(yearrange[1]-1)[-2:]+'_'+str(numword_per_article)+'w.csv', 'w') as outputfile:
 	filewriter = csv.writer(outputfile)
 	for i,(date, stats) in enumerate(statslist):
-		#print(date)
+		print(date)
 		if i == len(statslist)-1: break
 		row = []
 		tempdate = datetime.strptime(date, '%Y/%m/%d').date()
