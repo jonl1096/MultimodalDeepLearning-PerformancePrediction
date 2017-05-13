@@ -56,7 +56,7 @@ def parse_article_words(article):
 
 #num_days_to_concat = 3
 statsbydate = {}
-with open('Data/scrapers/Orioles_train.csv', 'r') as stats, open('Data/scrapers/dates.csv', 'r') as dates:
+with open('Data/scrapers/Orioles_train.csv', 'r') as stats, open('full_data/final_data/dates.csv', 'r') as dates:
 	statsreader = csv.reader(stats)
 	datesreader = csv.reader(dates)
 	next(statsreader)

@@ -3,27 +3,36 @@ import sys
 csv.field_size_limit(sys.maxsize)
 import numpy as np
 
-dates = []
-stats_vectors = []
-article_vectors = []
-twitter_vectors = []
-datafile = "Data/data_preprocessed.csv"
+modenames = ["articles",]
+encoder1layers = [([10],[]),]
+encoder2layers = [([10],[]),]
+modeidxs = [3,]
+labelsidx = 2
+dateidxs = (0,1)
+datafile = "Data/data_preprocessed_10w_300d.csv"
 outputfile = "Data/shared_rep.csv"
+
+
+dates = []
+vectors_by_mode = [[[],[]] for i in range(len(modeidxs))]
+train_or_test = 0
 with open(datafile, 'r') as data:
 	datareader = csv.reader(data)
-	for row in datareader:
-		dates.append(str(row[0]))
-		stats_vectors.append(eval(row[1]))
-		article_vectors.append(eval(row[2]))
-		# article_vectors[i] = eval(row[3])
-print(stats_vectors[0])
-print(article_vectors[0])
-# print(twitter_vectors[0])
+	for i,row in enumerate(datareader):
+		dates.append([str(row[dateidxs[0]]),str(row[dateidxs[1]])])
+		year = int(dates[len(dates)-1][0][:4])
+		if year < 2016:
+			train_or_test = 0
+		else:
+			train_or_test = 1
+		for i, modeidx in enumerate(modeidxs):
+			vectors_by_mode[i][train_or_test].append(eval(row[modeidx]))
+
 
 #put data in numpy matricies
-stats_vectors = np.matrix(stats_vectors)
-article_vectors = np.matrix(article_vectors)
-# twitter_vectors = np.matrix(twitter_vectors)
+for i,vectors in enumerate(vectors_by_mode):
+	vectors_by_mode[i][0] = np.matrix(vectors[0])
+	vectors_by_mode[i][1] = np.matrix(vectors[1])
 
 print("importing keras modules")
 from keras.layers import Input, Dense
@@ -60,10 +69,14 @@ def get_encoder(input_vectors, output_vectors, encoding_dim_list, decoding_dim_l
 
 print("getting individual mode encoders")
 #get individual mode encoders
-stats_encoder1 = get_encoder(stats_vectors,stats_vectors, [10], [])
-article_encoder1 = get_encoder(article_vectors,article_vectors, [10], [])
+encoder1 = [0 for i in range(len(vectors_by_mode))]
+for i,vectors in enumerate(vectors_by_mode):
+	encoder1[i] = get_encoder(vectors[0], vectors[0], encoder1layers[i][0], encoder1layers[i][1])
+	vectors[0] = encoder1[i].predict(vectors[0])
+	vectors[1] = encoder1[i].predict(vectors[1])
 
-print("getting encodings")
+combined_vector = np.zeros()
+
 #get encodings
 encoded_stats = stats_encoder1.predict(stats_vectors)
 encoded_articles = article_encoder1.predict(article_vectors)
