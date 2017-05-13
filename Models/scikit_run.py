@@ -17,48 +17,51 @@ from scipy.stats import randint as sp_randint
 from sklearn.externals import joblib
 from sklearn.model_selection import cross_val_score
 from sklearn.feature_extraction import DictVectorizer as DV
+from sklearn import preprocessing
+
 
 def main():
-    #with open("../pitchers_0.txt", "r") as f:
-    #    names = f.read().split('\n')
-    names = ['Orioles']
-
+    team_name = "Orioles"
     model_names = ['svm', 'nn', 'rf']
-    
     clear_txt_files(model_names)
-    # Train, Test, Write Results
-    for team_name in names:
-        train_data, test_data = readCSV(team_name)
-        
-        scores = []
-        for model_name in model_names:
-            train(train_data, team_name, model_name, grid_search=False)
-            clf = load(team_name)
-            scores.append((model_name, predict(clf, test_data, team_name, model_name, save=True), clf))
-        wins_nexts = np.unique(test_data[1])
-        write_summary(scores, team_name, len(wins_nexts), len(train_data[1]), wins_nexts)
-        scores.sort(key=lambda tup:tup[1], reverse=True)
-        write_best_scores(scores, team_name, test_data[1])
 
-    # Making predictions
-    
+    # Train, Test, Write Results
+    train_data, test_data = readCSV()
+    scores = []
+    for model_name in model_names:
+        train(train_data, team_name, model_name, grid_search=False)
+        clf = load(team_name)
+        scores.append((model_name, predict(clf, test_data, team_name, model_name, save=True), clf))
+    wins_nexts = np.unique(test_data[1])
+    write_summary(scores, team_name, len(wins_nexts), len(train_data[1]), wins_nexts)
+    scores.sort(key=lambda tup:tup[1], reverse=True)
+    write_best_scores(scores, team_name, test_data[1])
+
+    # Making predictions    
     #predict_atbat(clf)
 
 
-def readCSV(team_name):
-    train_csv_file = '../Data/scrapers/' + team_name + '_train' + '.csv'
-    test_csv_file = '../Data/scrapers/' + team_name + '_test' + '.csv'
+def readCSV():
+    stats_data = '../full_data/final_data/statistics.csv'
+    tweet_data = '../full_data/final_data/tweets_DF.csv'
 
-    X_train = pd.DataFrame.from_csv(train_csv_file, index_col=None)
-    y_train = X_train['wins_next']
-    X_train.drop('wins_next', axis = 1, inplace=True)
+    #stats data
+    X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
+    Y = X_stats['wins_today']
+    X_stats.drop(['previous_date', 'original_date', 'wins_today'], axis=1, inplace=True)
 
-    X_test = pd.DataFrame.from_csv(test_csv_file, index_col=None)
-    y_test = X_test['wins_next']
-    X_test.drop('wins_next', axis = 1, inplace=True)
+    #tweet data
+    X_tweet = pd.DataFrame.from_csv(tweet_data, index_col=None)
 
-    # populate data to equalize distribution
-    #X_train, y_train = populateData(X_train, y_train)
+    print(Y.shape, X_stats.shape, X_tweet.shape)
+    print(pd.concat([X_stats, X_tweet], axis=1).shape)
+    
+    X_stats = pd.DataFrame(preprocessing.MinMaxScaler().fit_transform(X_stats))    
+    X = pd.concat([X_stats, X_tweet], axis=1)
+    #X = X_tweet
+
+    # single stats
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
     return [X_train, y_train], [X_test, y_test]
 
 def populateData(X_train, y_train):
@@ -110,7 +113,7 @@ def train(data, team_name, model_name, grid_search):
     # grid search
     if grid_search:
         param_grid = get_param_grid(model_name)
-        grid_search = GridSearchCV(clf, param_grid=param_grid, n_jobs=-1)#, scoring='f1_macro')
+        grid_search = GridSearchCV(clf, param_grid=param_grid)#, scoring='f1_macro')
         print("\nfitting..")
         print(param_grid)
         grid_search.fit(X, y)
@@ -174,7 +177,7 @@ def eval(clf, act, pred):
 
 
 def scores(clf, X_train, y_train):
-    scores = cross_val_score(clf, X_train, y_train, scoring='accuracy', cv=5, n_jobs=-1)
+    scores = cross_val_score(clf, X_train, y_train, scoring='accuracy', cv=10)
     print('CV accuracy: %.3f +/- %.3f' % (np.mean(scores), np.std(scores)))
     return np.mean(scores)
 
