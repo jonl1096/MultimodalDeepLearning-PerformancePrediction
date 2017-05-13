@@ -11,6 +11,6 @@ RandomForestClassifier(bootstrap=True, class_weight=None, criterion='gini',
             verbose=0, warm_start=False)
 
  classes: [0 1]
- score: 0.539719
+ score: 0.540745
 
 

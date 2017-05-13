@@ -31,7 +31,7 @@ count = 0
 lda_vector = 0
 avg_vectors = []
 
-write_df = pd.DataFrame(columns=['date', 'tweet_lda'])
+write_df = []
 
 for index, row in df.iterrows():
 	print("DF:" + row['date'])
@@ -39,15 +39,17 @@ for index, row in df.iterrows():
 	count+=1
 
 	if row['date'][3] != curr_date[3] or row['date'] == curr_date:
-		avg_vectors.append((curr_date, [i for i in lda_vector / count]))
+		write_df.append(lda_vector / count)
 		count = 0
 		lda_vector = 0
-		curr_date = original_date_list.pop(0)
+		if original_date_list:
+			curr_date = original_date_list.pop(0)
 
 #avg_vectors.append((curr_date, lda_vector / count))
 
-df = pd.DataFrame(avg_vectors)
-df.to_csv("lda_output.csv")
-print(df.shape)
+#df = pd.DataFrame(avg_vectors)
+#df.to_csv("lda_output_df.csv")
+#print(df.shape)
+pd.DataFrame(write_df).to_csv("LDA_DF.csv")
 
 
