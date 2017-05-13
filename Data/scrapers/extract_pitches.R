@@ -25,6 +25,12 @@ data$isHome <- -1
 data$isHome[data$home_team_name == target_team] <- 1
 data$score_diff <- 0
 data$score_diff <- (data$home_team_runs - data$away_team_runs) * data$isHome
+
+# get Opponent name
+data$opponent <- NA
+data$opponent[data$isHome == 1] <- data$away_team_name[data$isHome == 1]
+data$opponent[data$isHome == -1] <- data$home_team_name[data$isHome == -1]
+
 # drop canceled/tied games
 data <- data[!is.na(data$score_diff) & data$score_diff != 0,]
 
@@ -36,25 +42,11 @@ data$wins[data$score_diff > 0] <- 1
 n_rows <- dim(data)[1]
 n_cols <- dim(data)[2]
 
-# get wins_next
-stored_wins <- data$wins
-stored_wins <- c(stored_wins,NA)
-data <- rbind(data[1,], data)
-data$wins_next <- stored_wins
-data <- data[3:n_rows,]
+data <- with(data, data.frame(data,model.matrix(~opponent-1,data)))
 
 # re order data
-dates <- data[c(1)]
-data <- data[c(24, 23, 22, 21, 4:19)]
-
-# split datasets
-randomized_data <- data[sample(nrow(data)),]
-data_len <- nrow(randomized_data)
-split_size <- ceiling((3/4)*data_len)
-train_data <- randomized_data[1:split_size, ]
-test_data <- randomized_data[(split_size+1):data_len, ]
+#data <- data[c(24, 23, 22, 21, 4:19)]
 
 # write data
 write.csv(dates, file=paste(target_team,"_dates.csv", sep=""), row.names = FALSE)
-write.csv(train_data, file=paste(target_team,"_train.csv", sep=""), row.names = FALSE)
-write.csv(test_data, file=paste(target_team,"_test.csv", sep=""), row.names = FALSE)
+write.csv(data, file=paste(target_team,"_14_16.csv", sep=""), row.names = FALSE)

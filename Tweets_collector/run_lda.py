@@ -30,20 +30,14 @@ def main():
 
     # vectorize
     X_trans, topics, topic_components= fit_lda(X, n_features, n_topics, n_top_words, n_samples)
-
-    # write transformed data
-    outfile_name = "data/orioles_tweets_LDA.csv"    
-    np.savetxt(outfile_name, X_trans, delimiter="<;>")
     
-    # names
-    '''
-    topic_names = ["Family/Urgent", "Offence", "School Crime", 
-                    "Police/Crime/Satire", "Donald Trump", "Teenage Abortion", 
-                    "Marriage", "Crime witness", "Attack/Terrorism", "Hilary Clinton"]
-    '''
+    X_LDA = pd.concat([dates, pd.DataFrame(X_trans)], axis=1)
+    # write transformed data
+    outfile_name = "data/orioles_tweets_LDA.csv"
+    X_LDA.to_csv(outfile_name, sep=",", index=False)
+    
 
     topic_names = [("Topic: %d"%i) for i in range(n_topics)]
-
     # assign topics
     topic_labels = []
     for i in range(len(X_trans)):
