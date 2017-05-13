@@ -130,16 +130,16 @@ def get_season_articles(search_term, num_per_day, start_date, end_date):
 	return data
 
 def write_season_csv(year, data):
-	with open('Data/season'+year+'.csv', 'w') as csvfile:
+	with open('Data/season'+year+'extended.csv', 'w') as csvfile:
 		urlwriter = csv.writer(csvfile)
 		#urlwriter.writerow(["date", "articles"])
 		for item in data:
 			urlwriter.writerow(item)
 
-write_season_csv("2016websites", get_season_articles("baltimore orioles baseball", 10, Date(2016, 4, 3), Date(2016, 10, 2)))
-write_season_csv("2015websites", get_season_articles("baltimore orioles baseball", 10, Date(2015, 4, 5), Date(2015, 10, 4)))
-write_season_csv("2014websites", get_season_articles("baltimore orioles baseball", 10, Date(2014, 3, 30), Date(2014, 9, 28)))
-write_season_csv("2013websites", get_season_articles("baltimore orioles baseball", 10, Date(2013, 3, 31), Date(2013, 9, 30)))
-write_season_csv("2012websites", get_season_articles("baltimore orioles baseball", 10, Date(2012, 3, 28), Date(2012, 10, 3)))
-write_season_csv("2011websites", get_season_articles("baltimore orioles baseball", 10, Date(2011, 3, 31), Date(2011, 9, 28)))
+write_season_csv("2016websites", get_season_articles("baltimore orioles baseball", 10, Date(2016, 3, 3), Date(2016, 10, 2)))
+write_season_csv("2015websites", get_season_articles("baltimore orioles baseball", 10, Date(2015, 3, 3), Date(2015, 10, 4)))
+write_season_csv("2014websites", get_season_articles("baltimore orioles baseball", 10, Date(2014, 3, 1), Date(2014, 10, 15)))
+#write_season_csv("2013websites", get_season_articles("baltimore orioles baseball", 10, Date(2013, 3, 31), Date(2013, 9, 30)))
+#write_season_csv("2012websites", get_season_articles("baltimore orioles baseball", 10, Date(2012, 3, 28), Date(2012, 10, 3)))
+#write_season_csv("2011websites", get_season_articles("baltimore orioles baseball", 10, Date(2011, 3, 31), Date(2011, 9, 28)))
 
