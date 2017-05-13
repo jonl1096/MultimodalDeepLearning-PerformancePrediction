@@ -3,14 +3,14 @@ import sys
 csv.field_size_limit(sys.maxsize)
 import numpy as np
 
-modenames = ["articles",]
-encoder1layers = [([10],[]),]
-encoder2layers = [([10],[]),]
+modenames = ["articles","tweets"]
+encoder1layers = [([10],[]),([10],[])]
+encoder2layers = [([10],[]),([10],[])]
 encode_sharedrep_layers = ([10],[])
-modeidxs = [3,]
+modeidxs = [3,4]
 labelsidx = 2
 dateidxs = (0,1)
-datafile = "Data/data_preprocessed_10w_300d.csv"
+datafile = "Data/data_preprocessed_10w_300d copy.csv"
 outputfiletrain = "Data/shared_rep_train.csv"
 outputfiletest = "Data/shared_rep_test.csv"
 
@@ -30,6 +30,7 @@ with open(datafile, 'r') as data:
 			train_or_test = 1
 			dates_test.append([str(row[dateidxs[0]]),str(row[dateidxs[1]])])
 		for i, modeidx in enumerate(modeidxs):
+			print(len(vectors_by_mode), len(row))
 			vectors_by_mode[i][train_or_test].append(eval(row[modeidx]))
 
 
