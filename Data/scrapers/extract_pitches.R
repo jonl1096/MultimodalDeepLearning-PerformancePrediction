@@ -48,5 +48,5 @@ data <- with(data, data.frame(data,model.matrix(~opponent-1,data)))
 #data <- data[c(24, 23, 22, 21, 4:19)]
 
 # write data
-write.csv(dates, file=paste(target_team,"_dates.csv", sep=""), row.names = FALSE)
+#write.csv(dates, file=paste(target_team,"_dates.csv", sep=""), row.names = FALSE)
 write.csv(data, file=paste(target_team,"_14_16.csv", sep=""), row.names = FALSE)
