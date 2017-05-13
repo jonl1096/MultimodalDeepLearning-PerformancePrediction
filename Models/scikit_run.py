@@ -19,7 +19,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.feature_extraction import DictVectorizer as DV
 from sklearn import preprocessing
 
-
+np.random.seed(7)
 def main():
     team_name = "Orioles"
     model_names = ['svm', 'nn', 'rf']
@@ -44,21 +44,24 @@ def main():
 def readCSV():
     stats_data = '../full_data/final_data/statistics.csv'
     tweet_data = '../full_data/final_data/tweets_DF.csv'
+    artic_data = '../full_data/final_data/articles.csv'
 
     #stats data
     X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
     Y = X_stats['wins_today']
     X_stats.drop(['previous_date', 'original_date', 'wins_today'], axis=1, inplace=True)
+    X_stats = pd.DataFrame(preprocessing.MinMaxScaler().fit_transform(X_stats))
 
     #tweet data
     X_tweet = pd.DataFrame.from_csv(tweet_data, index_col=None)
 
-    print(Y.shape, X_stats.shape, X_tweet.shape)
-    print(pd.concat([X_stats, X_tweet], axis=1).shape)
-    
-    X_stats = pd.DataFrame(preprocessing.MinMaxScaler().fit_transform(X_stats))    
-    X = pd.concat([X_stats, X_tweet], axis=1)
-    #X = X_tweet
+    #article data
+    X_artic = pd.DataFrame.from_csv(tweet_data, index_col=None)
+
+    a, b, c = 0.001, 10, 5
+    X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
+
+    X = pd.concat([X_stats, X_tweet, X_artic], axis=1)
 
     # single stats
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
