@@ -20,7 +20,6 @@ from sklearn.feature_extraction import DictVectorizer as DV
 from sklearn import preprocessing
 
 
-np.random.seed(7)
 def main():
     team_name = "Orioles"
     model_names = ['svm', 'nn', 'rf']
@@ -30,7 +29,7 @@ def main():
     train_data, test_data = readCSV()
     scores = []
     for model_name in model_names:
-        train(train_data, team_name, model_name, grid_search=False)
+        train(train_data, team_name, model_name, grid_search=True)
         clf = load(team_name)
         scores.append((model_name, predict(clf, test_data, team_name, model_name, save=True), clf))
     wins_nexts = np.unique(test_data[1])
@@ -45,8 +44,9 @@ def main():
 def readCSV():
     stats_data = '../full_data/final_data/statistics.csv'
     tweet_data = '../full_data/final_data/tweets_DF.csv'
-    artic_data = '../full_data/final_data/articles_tf.csv'
-    bimod_data = '../full_data/final_data/bimodal_TnA.csv'
+    artic_data = '../full_data/final_data/articles_lda.csv'
+    bimod_data = '../full_data/processed/bimodal_AT_deep_with.csv'
+    trimod_data = '../full_data/processed/trimdal_with.csv'
 
     #stats data
     X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
@@ -62,11 +62,13 @@ def readCSV():
 
     #bimodal data
     X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
+    X_trimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None) 
     #a, b, c = 0.001, 10, 5
     #X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
-    X = X_bimod
-    #X = pd.concat([X_stats, X_tweet, X_artic], axis=1)
-
+    
+    #X = X_artic
+    #X = pd.concat([X_bimod], axis=1)
+    X = X_tweet
     n = 371
     X_train, X_test, y_train, y_test = X[:n], X[n:], Y[:n], Y[n:]    # single stats
     #X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
@@ -171,10 +173,10 @@ def get_param_grid(model):
                     }
     elif (model == 'svm'):
         param_grid = {'C' : [5, 7, 9, 12],
-                    'kernel': ['rbf'], #'poly'],#, 'sigmoid'],
+                    'kernel': ['rbf', 'poly'],#, 'sigmoid'],
                     'gamma': [5e-3, 1e-2, 1e-1],
+                    'degree': [3, 5, 7, 9],
                     #'max_iter' : [100, 200, 300]
-                    #'degree': [3, 5, 7, 9],
                     }
     return param_grid
 

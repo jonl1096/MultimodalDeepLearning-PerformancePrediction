@@ -65,8 +65,9 @@ def run_rnn(X_train, X_test, y_train, y_test):
 def readCSV():
     stats_data = '../full_data/final_data/statistics.csv'
     tweet_data = '../full_data/final_data/tweets_DF.csv'
-    artic_data = '../full_data/final_data/articles_tf.csv'
-    bimod_data = '../full_data/final_data/bimodal_TnA.csv'
+    artic_data = '../full_data/final_data/articles_lda.csv'
+    bimod_data = '../full_data/processed/bimodal_AT_with.csv'
+    trimod_data = '../full_data/processed/trimdal_with.csv'
 
     #stats data
     X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
@@ -82,10 +83,17 @@ def readCSV():
 
     #bimodal data
     X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
+    X_trimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None) 
     #a, b, c = 0.001, 10, 5
     #X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
+    
+    #X = X_artic
+    #X = pd.concat([X_bimod], axis=1)
     X = X_bimod
-    #X = pd.concat([X_stats, X_tweet, X_artic], axis=1)
+    n = 371
+    X_train, X_test, y_train, y_test = X[:n], X[n:], Y[:n], Y[n:]    # single stats
+    #X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
+    return X_train, X_test, y_train, y_test
 
     # single stats
     x_len = X.shape[0]

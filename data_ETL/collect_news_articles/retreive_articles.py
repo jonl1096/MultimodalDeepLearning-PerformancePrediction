@@ -130,7 +130,7 @@ def get_season_articles(search_term, num_per_day, start_date, end_date):
 	return data
 
 def write_season_csv(year, data):
-	with open('Data/season'+year+'extended.csv', 'w') as csvfile:
+	with open('../../Data/season'+year+'extended.csv', 'w') as csvfile:
 		urlwriter = csv.writer(csvfile)
 		#urlwriter.writerow(["date", "articles"])
 		for item in data:
