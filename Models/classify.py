@@ -82,17 +82,17 @@ def readCSV(option):
     
     # bimodal
     if option == '8':
-        bimod_data = '../Data/processed/bimodal_AS.csv'
+        bimod_data = '../Data/processed/bimodal_TS.csv'
         X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
     if option == '9':
-        bimod_data = '../Data/processed/bimodal_AT_deep_with.csv'
+        bimod_data = '../Data/processed/bimodal_AS.csv'
         X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
     if option == '10':
         bimod_data = '../Data/processed/bimodal_AT_deep_with.csv'
         X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
 
     # trimodal
-    trimod_data = '../Data/processed/trimodal_with.csv'
+    trimod_data = '../Data/processed/trimodal.csv'
     X_trimod = pd.DataFrame.from_csv(trimod_data, index_col=None, header=None) 
     
     #a, b, c = 0.001, 10, 5
@@ -113,6 +113,7 @@ def readCSV(option):
     elif option == '7':
         X = pd.concat([X_tweet, X_artic, X_stats], axis=1)   
     elif option == '8' or option == '9' or option == '10':
+        #X_bimod = pd.DataFrame.from_csv("../Data/processed/transformed_shared_rep_total_data.csv", index_col=None, header=None)
         X = X_bimod
     elif option == '11':
         X = X_trimod

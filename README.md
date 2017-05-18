@@ -25,7 +25,7 @@
 * To collect statistical data from MLB gameday websites, run [extract_pitches.R](https://github.com/jonl1096/MultimodalDeepLearning-PerformancePrediction/blob/master/data_ETL/collect_mlb_statistics/extract_pitches.R)
 
 
-### Latent Dirichilet Allication
+### Latent Dirichilet Allocation
 
 * To perform LDA on variety of data, run [run_lda.py](https://github.com/jonl1096/MultimodalDeepLearning-PerformancePrediction/blob/master/data_ETL/run_lda.py)
 

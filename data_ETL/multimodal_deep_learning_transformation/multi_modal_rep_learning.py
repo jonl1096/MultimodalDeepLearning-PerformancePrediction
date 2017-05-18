@@ -6,7 +6,7 @@ import numpy as np
 menu = 'Choose between the following encoding options:\n'\
 	   '(1) Bimodal shared representation learning\n'\
 	   '(2) Bimodal shared representation learning with labels\n'\
-	   '(3) Triimodal shared representation learning\n'\
+	   '(3) Trimodal shared representation learning\n'\
 	   '(4) Trimodal shared representation learning with labels\n'
 
 print(menu)
@@ -23,8 +23,8 @@ if option == '2' or option == '4':
 
 # bimodal
 if bimodal:
-	modenames = ["articles","tweets"]
-	modeidxs = [0,1]
+	modenames = ["articles","tweets","stats"]
+	modeidxs = [1,5]
 	encoder1layers = [([20],[]),([20],[]),]
 	encoder2layers = [([10],[]),([10],[]),]
 	encode_sharedrep_layers = ([10],[])
@@ -109,7 +109,8 @@ def get_encoder(input_vectors, output_vectors, encoding_dim_list, decoding_dim_l
 
 	encoder = Model(input_vector, encoded)
 
-	autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+	# autoencoder.compile(optimizer='adadelta', loss='binary_crossentropy')
+	autoencoder.compile(optimizer='adadelta', loss='mean_squared_error')
 
 	autoencoder.fit(input_vectors, output_vectors,
 					epochs=100)

@@ -37,8 +37,6 @@ def main():
     X_train, X_test, y_train, y_test = readCSV()
     run_rnn(X_train, X_test, y_train, y_test)
 
-
-
 def run_rnn(X_train, X_test, y_train, y_test):
 	x_len = X_train.shape[1]
 	X_train = X_train.values
