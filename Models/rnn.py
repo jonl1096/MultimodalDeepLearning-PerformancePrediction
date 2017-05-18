@@ -30,12 +30,30 @@ from sklearn import preprocessing
 #np.random.seed(7)
 
 def main():
-    team_name = "Orioles"
-    model_names = ['svm', 'nn', 'rf']
+    menu = 'Select a data to perform classification:\n'\
+           '- Single Modal -\n'\
+           '(1) Statistics\n'\
+           '(2) Tweets\n'\
+           '(3) News Articles\n'\
+           '- Modal concatenation -\n'\
+           '(4) Tweets + Statistics\n'\
+           '(5) Articles + Statistics\n'\
+           '(6) Articles + Tweets\n'\
+           '(7) Articles + Tweets + Statistics\n'\
+           '- Bimodal Shared Representation -\n'\
+           '(8) Tweets & Statistics\n'\
+           '(9) Articles & Statistics\n'\
+           '(10) Articles & Tweets\n'\
+           '- Trimodal Shared Representation -\n'\
+           '(11) Articles & Tweets & Statistics\n'\
+           '(0) Exit\n'
 
-    # Train, Test, Write Results
-    X_train, X_test, y_train, y_test = readCSV()
-    run_rnn(X_train, X_test, y_train, y_test)
+    while True:
+        print(menu)
+        option = raw_input("enter option: ")
+        # Train, Test, Write Results
+        X_train, X_test, y_train, y_test = readCSV(option)
+        run_rnn(X_train, X_test, y_train, y_test)
 
 def run_rnn(X_train, X_test, y_train, y_test):
 	x_len = X_train.shape[1]
@@ -60,12 +78,11 @@ def run_rnn(X_train, X_test, y_train, y_test):
 	print("Accuracy: %.2f%%" % (scores[1]*100))
 
 
-def readCSV():
-    stats_data = '../full_data/final_data/statistics.csv'
-    tweet_data = '../full_data/final_data/tweets_DF.csv'
-    artic_data = '../full_data/final_data/articles_lda.csv'
-    bimod_data = '../full_data/processed/bimodal_AT_with.csv'
-    trimod_data = '../full_data/processed/trimdal_with.csv'
+def readCSV(option):
+    # single modal
+    stats_data = '../Data/final_data/statistics.csv'
+    tweet_data = '../Data/final_data/tweets_DF.csv'
+    artic_data = '../Data/final_data/articles_lda.csv'
 
     #stats data
     X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
@@ -78,29 +95,53 @@ def readCSV():
 
     #article data
     X_artic = pd.DataFrame.from_csv(artic_data, index_col=None, header=None)
+    
+    # bimodal
+    if option == '8':
+        bimod_data = '../Data/processed/bimodal_TS.csv'
+        X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
+    if option == '9':
+        bimod_data = '../Data/processed/bimodal_AS.csv'
+        X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
+    if option == '10':
+        bimod_data = '../Data/processed/bimodal_AT_deep_with.csv'
+        X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
 
-    #bimodal data
-    X_bimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None)
-    X_trimod = pd.DataFrame.from_csv(bimod_data, index_col=None, header=None) 
+    # trimodal
+    trimod_data = '../Data/processed/trimodal_with.csv'
+    X_trimod = pd.DataFrame.from_csv(trimod_data, index_col=None, header=None) 
+    
     #a, b, c = 0.001, 10, 5
     #X_stats, X_tweet, X_artic = a*X_stats, b*X_tweet, c*X_artic
     
-    #X = X_artic
-    #X = pd.concat([X_bimod], axis=1)
-    X = X_bimod
+    if option == '1':
+        X = X_stats
+    elif option == '2':
+        X = X_tweet
+    elif option == '3':
+        X = X_artic
+    elif option == '4':
+        X = pd.concat([X_tweet, X_stats], axis=1)   
+    elif option == '5':
+        X = pd.concat([X_artic, X_stats], axis=1)   
+    elif option == '6':
+        X = pd.concat([X_artic, X_tweet], axis=1)   
+    elif option == '7':
+        X = pd.concat([X_tweet, X_artic, X_stats], axis=1)   
+    elif option == '8' or option == '9' or option == '10':
+        #X_bimod = pd.DataFrame.from_csv("../Data/processed/transformed_shared_rep_total_data.csv", index_col=None, header=None)
+        X = X_bimod
+    elif option == '11':
+        X = X_trimod
+    elif option == '0':
+        exit(1)
+    else:
+        print("wrong option.")
+        exit(1)
+
     n = 371
     X_train, X_test, y_train, y_test = X[:n], X[n:], Y[:n], Y[n:]    # single stats
-    #X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
     return X_train, X_test, y_train, y_test
-
-    # single stats
-    x_len = X.shape[0]
-    cut = 0.5
-    n = int(x_len * cut)
-    X_train, X_test, y_train, y_test = X[:n], X[n:], Y[:n], Y[:n]
-    #X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.50, random_state=42)
-    return X_train, X_test, y_train, y_test
-
 
 
 
