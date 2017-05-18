@@ -32,12 +32,10 @@
 
 ### Multimodal Deep Learning
 
-* To encode bimodal data for shared representation, run []
-* To encode trimodal data for shared representation, run []
-
+* To encode bimodal/trimodal data with/without supervision for shared representation learning, run [multi_modal_rep_learning.py](https://github.com/jonl1096/d2m-final-project/blob/master/data_ETL/multimodal_deep_learning/multi_modal_rep_learning.py)
 
 ### Classifications:
 
-* To perform classification for each type of data representation, run []
+* To train/test classifiers for each type of data representation using SVM, Random Forest, Multi Layered Percentron, run [classify.py](https://github.com/jonl1096/d2m-final-project/blob/master/Models/classify.py)
 
-
+* To train/test Recurrent Neural Network for each type of data, run [rnn.py](https://github.com/jonl1096/d2m-final-project/blob/master/Models/rnn.py)
