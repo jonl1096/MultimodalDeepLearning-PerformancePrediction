@@ -42,11 +42,11 @@ def main():
 
 
 def readCSV():
-    stats_data = '../full_data/final_data/statistics.csv'
-    tweet_data = '../full_data/final_data/tweets_DF.csv'
-    artic_data = '../full_data/final_data/articles_lda.csv'
-    bimod_data = '../full_data/processed/bimodal_AT_deep_with.csv'
-    trimod_data = '../full_data/processed/trimdal_with.csv'
+    stats_data = '../Data/final_data/statistics.csv'
+    tweet_data = '../Data/final_data/tweets_DF.csv'
+    artic_data = '../Data/final_data/articles_lda.csv'
+    bimod_data = '../Data/full_data/processed/bimodal_AT_deep_with.csv'
+    trimod_data = '../Data/full_data/processed/trimdal_with.csv'
 
     #stats data
     X_stats = pd.DataFrame.from_csv(stats_data, index_col=None)
